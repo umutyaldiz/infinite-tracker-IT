@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite & Tracker</title>
+    <style>
+        body,
+        html {
+            display: block;
+            padding: 0px;
+            margin: 0;
+            background: #202020;
+            color: #f1f1f1;
+        }
+
+        .master {
+            display: block;
+            background: #202020;
+        }
+
+        .container {
+            display: block;
+            max-width: 768px;
+            margin: 0 auto;
+        }
+
+        article {
+            display: block;
+            margin: 0 0 50px;
+            padding: 20px;
+            background-color: #3a3a3a;
+        }
+
+        section {
+            display: block;
+            margin: 0 0 50px;
+            min-height: 500px;
+            padding: 20px;
+            background-color: #585858;
+        }
+
+        .it-active {
+            border: 2px solid orange;
+        }
+
+        img {
+            width: 100%;
+            max-width: 100%;
+            display: block;
+        }
+
+        .space {
+            display: block;
+            min-height: 400px;
+            background-color: #585858;
+        }
+
+        .loading-infinite {
+            background-color: #585858;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .log {
+            position: fixed;
+            width: 300px;
+            height: auto;
+            padding: 15px;
+            right: 20px;
+            bottom: 20px;
+            background-color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="master">
+        <div class="container it-container">
+            <div class="space">
+                space
+            </div>
+            <article class="it-main it-item"
+                data-it='{"index":"1","next":"/next/url/1","tracker":[{"type":"gemius","id":"333333"},{"type":"google","title":"article 1 title","url":"/index.html?page1","id":"00001"},{"type":"history","parameter":"full","title":"article 1 title","url":"/index.html?article=1"}]}'>
+                <h1>Article</h1>
+                <section class="it-item"
+                    data-it='{"index":1,"tracker":[{"type":"gemius","id":"333333"},{"type":"google"},{"type":"history","parameter":"page","title":"article 1 title","url":"1"}]}'>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                        the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley
+                        of type and scrambled it to make a type specimen book. It has survived not only five centuries,
+                        but also the leap into electronic typesetting, remaining essentially unchanged. It was
+                        popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                        and more recently with desktop publishing software like Aldus PageMaker including versions of
+                        Lorem Ipsum.</p>
+                </section>
+                <section class="it-item"
+                    data-it='{"index":2,"tracker":[{"type":"gemius","id":"333333"},{"type":"google"},{"type":"history","parameter":"page","title":"article 1 title","url":"2"}]}'>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                        the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley
+                        of type and scrambled it to make a type specimen book. It has survived not only five centuries,
+                        but also the leap into electronic typesetting, remaining essentially unchanged. It was
+                        popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                        and more recently with desktop publishing software like Aldus PageMaker including versions of
+                        Lorem Ipsum.</p>
+                </section>
+                <section class="it-item"
+                    data-it='{"index":3,"tracker":[{"type":"gemius","id":"333333"},{"type":"google"},{"type":"history","parameter":"page","title":"article 1 title","url":"3"}]}'>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                        the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley
+                        of type and scrambled it to make a type specimen book. It has survived not only five centuries,
+                        but also the leap into electronic typesetting, remaining essentially unchanged. It was
+                        popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                        and more recently with desktop publishing software like Aldus PageMaker including versions of
+                        Lorem Ipsum.</p>
+                </section>
+                <section class="it-item"
+                    data-it='{"index":4,"tracker":[{"type":"gemius","id":"333333"},{"type":"google"},{"type":"history","parameter":"page","title":"article 1 title","url":"4"}]}'>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                        the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley
+                        of type and scrambled it to make a type specimen book. It has survived not only five centuries,
+                        but also the leap into electronic typesetting, remaining essentially unchanged. It was
+                        popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                        and more recently with desktop publishing software like Aldus PageMaker including versions of
+                        Lorem Ipsum.</p>
+                </section>
+                <section class="it-item"
+                    data-it='{"index":5,"tracker":[{"type":"gemius","id":"333333"},{"type":"google"},{"type":"history","parameter":"page","title":"article 1 title","url":"5"}]}'>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                        the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley
+                        of type and scrambled it to make a type specimen book. It has survived not only five centuries,
+                        but also the leap into electronic typesetting, remaining essentially unchanged. It was
+                        popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                        and more recently with desktop publishing software like Aldus PageMaker including versions of
+                        Lorem Ipsum.</p>
+                </section>
+                <div class="space">
+                    space
+                </div>
+                <div class="space">
+                    space
+                </div>
+            </article>
+
+        </div>
+        <div class="container">
+            <div class="loading-infinite it-loading-progress">
+                LOADİNG
+            </div>
+        </div>
+    </div>
+    <div class="log" id="it-log">LOG</div>
+    <script src="it.js"></script>
+</body>
+
+</html>
