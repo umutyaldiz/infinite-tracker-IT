@@ -7,13 +7,15 @@ class IT {
             'section': '.it-item',
             'loading': '.it-loading-progress',
             'active': 'it-active',
+            "history": true
         };
         this.options = Object.assign(defaults, props);
         this.scrollTemp = 0;
         this.selectedItem,
             this.nextItemUrl,
             this.requestStarted = false,
-            this.infiniteIndex = 0;
+            this.infiniteIndex = 0,
+            this.loadedPageIDS = [];
     }
 
     isInView(el) {
@@ -24,17 +26,6 @@ class IT {
         return bounds.top <= (window.innerHeight || document.body.clientHeight) / 2;
     }
 
-    google(data) {
-        window.dataLayer = window.dataLayer || [];
-        dataLayer.push({
-
-        });
-    }
-
-    gemius(data) {
-
-    }
-
     history(data) {
 
         const state = { 'scrollY': this.scrollTemp }
@@ -42,13 +33,16 @@ class IT {
         let url = "";
         if (data.parameter == "full") {
             url = data.url;
+        } else if (data.parameter == "/") {
+            const mainItemHistory = JSON.parse(this.mainItem.getAttribute(this.options.attr)).tracker
+                .filter(e => e.type === "history");
+            url = mainItemHistory[0].url + data.parameter + data.url;
         } else {
-            const mainItemHistory = JSON.parse(this.mainItem.getAttribute(this.options.attr)).tracker.filter(e => e.type === "history");
-
+            const mainItemHistory = JSON.parse(this.mainItem.getAttribute(this.options.attr)).tracker
+                .filter(e => e.type === "history");
             url = new URL(mainItemHistory[0].url, window.location);
             url.searchParams.set(data.parameter, data.url);
         }
-
         history.pushState(state, data.title, url);
 
     }
@@ -56,23 +50,18 @@ class IT {
     trackers() {
         const trackers = JSON.parse(this.selectedItem.getAttribute(this.options.attr)).tracker;
 
-        this.log(JSON.parse(this.selectedItem.getAttribute(this.options.attr)).index);
+        if (this.options.history) {
+            const historyCheck = trackers.filter(e => e.type === "history");
+            if (historyCheck.length) {
+                this.history(historyCheck[0]);
+            }
+        }
 
-        for (let i = 0, length = trackers.length; i < length; i++) {
-            const tracker = trackers[i];
-
-            switch (tracker.type) {
-                case "google":
-                    this.google(tracker);
-                    break;
-                case "gemius":
-                    this.gemius(tracker);
-                    break;
-                case "history":
-                    this.history(tracker);
-                    break;
-                default:
-                    break;
+        const filteredTrackers = trackers.filter(e => e.type != "history"); //history not a function
+        for (let i = 0, length = filteredTrackers.length; i < length; i++) {
+            const tracker = filteredTrackers[i];
+            if (this.options.trackers) {
+                this.options.trackers[tracker.type](tracker)
             }
         }
 
@@ -92,8 +81,8 @@ class IT {
             if (this.isInView(item)) {
                 newItem = item;
 
-                if (JSON.parse(attributes).next) {
-                    nextUrl = JSON.parse(attributes).next;
+                if (JSON.parse(attributes).next || item.classList.contains(this.options.mainSection.replace('.', ''))) {
+                    nextUrl = JSON.parse(attributes).next || 0;
                     wrapperItem = item;
                 }
             }
@@ -127,6 +116,9 @@ class IT {
 
         setTimeout(() => {
             _this.requestStarted = false;
+            if (this.options.infiniteCallback) {
+                this.options.infiniteCallback();
+            }
         }, 1000);
     }
 
@@ -138,10 +130,18 @@ class IT {
             loadingEl.style = "display:none";
             return;
         }
-        // const data = await fetch(url)
-        const data = await fetch('/infinite.html')
-            .then((response) => response.text())
-            .then((html) => _this.append(html));
+
+        try {
+            await fetch(url).then((response) => response.text()).then((html) => {
+                _this.append(html);
+            }).catch((error) => {
+                const loadingEl = document.querySelector(this.options.loading);
+                loadingEl.style = "display:none";
+            });
+        } catch (error) {
+            const loadingEl = document.querySelector(this.options.loading);
+            loadingEl.style = "display:none";
+        }
     }
 
     infinite() {
@@ -149,11 +149,35 @@ class IT {
         const boundsTop = loadingEl.offsetTop;
         const clientHeight = (window.innerHeight || document.body.clientHeight);
 
-        if ((this.nextItemUrl || this.options.data) && boundsTop <= this.scrollTemp + clientHeight && !this.requestStarted) {
-            const url = this.nextItemUrl != "stop" ? this.nextItemUrl :
-                this.options.api ? this.options.api + this.options.data[this.infiniteIndex].nextNewsID : 0;
-            this.getRequest(url);
+        if ((this.nextItemUrl || this.options.data)
+            && boundsTop <= this.scrollTemp + clientHeight
+            && !this.requestStarted) {
+
+            let urlSet = 0;
+
+            if (this.options.api) {
+                let news = this.options.data[this.infiniteIndex];
+                if (news) {
+                    let newsID = this.options.data[this.infiniteIndex].nextNewsID;
+
+                    if (this.loadedPageIDS.indexOf(newsID) > -1) {
+                        this.infiniteIndex++;
+                        newsID = this.options.data[this.infiniteIndex].nextNewsID;
+                    } else {
+                        this.loadedPageIDS.push(newsID);
+                    }
+
+                    urlSet = this.options.api + newsID;
+                }
+            } else if (this.nextItemUrl != "stop") {
+                urlSet = this.nextItemUrl;
+            }
+
+            this.infiniteIndex++;
+            this.getRequest(urlSet);
+
         }
+
     }
 
     scrollHandler() {
@@ -183,20 +207,32 @@ class IT {
             _this.scrollHandler();
         });
     }
-
-    log(msg) {
-        console.log(msg);
-        document.getElementById('it-log').innerHTML = msg;
-    }
 }
 
 const InfiniteTracker = new IT({
-    // "api": "https://www.api.com/infiniteload/",
+    // "api": "/infinite.html?id=",
     // "data": [{
-    //     "nextNewsID": "0000000",
-    //     "nextNewsURL": "/test-test-02154",
+    //     "nextNewsID": "0000006",
+    //     "nextNewsURL": "/test-test-0000006",
+    //     "nextNewsTitle": "Test article",
+    //     "nextNewsImg": "https://imgapi.com/img.png"
+    // },{
+    //     "nextNewsID": "0000007",
+    //     "nextNewsURL": "/test-test-0000007",
     //     "nextNewsTitle": "Test article",
     //     "nextNewsImg": "https://imgapi.com/img.png"
     // }],
+    "trackers": {
+        "google": function (data) {
+            console.log("google", data);
+        },
+        "gemius": function (data) {
+            console.log("gemius", data);
+        }
+    },
+    "history": true,//default true
+    "infiniteCallback": function () {
+        console.log("callback test");
+    }
 });
 InfiniteTracker.init();
