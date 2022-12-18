@@ -43,7 +43,9 @@ class IT {
             url = new URL(mainItemHistory[0].url, window.location);
             url.searchParams.set(data.parameter, data.url);
         }
-        history.pushState(state, data.title, url);
+        if(url && window.location.pathname != url){
+            history.pushState(state, data.title, url);
+        }
 
     }
 
