@@ -124,7 +124,7 @@ class IT {
         }, 1000);
     }
 
-    async getRequest(url) {
+    getRequest(url) {
         const _this = this;
         this.requestStarted = true;
         if (!url) {
@@ -134,7 +134,7 @@ class IT {
         }
 
         try {
-            await fetch(url).then((response) => response.text()).then((html) => {
+            fetch(url).then((response) => response.text()).then((html) => {
                 _this.append(html);
             }).catch((error) => {
                 const loadingEl = document.querySelector(this.options.loading);
